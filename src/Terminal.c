@@ -1,10 +1,10 @@
 /*
  ============================================================================
- Name        : Terminal.c
+ Name        : terminal.c
  Author      : Greg Beaty
  Version     :
  Copyright   : 2012
- Description : Hello World in C, Ansi-style
+ Description :
  ============================================================================
  */
 
@@ -12,6 +12,6 @@
 #include <stdlib.h>
 
 int main(void) {
-	puts("Hello Terminal!"); /* prints Hello Terminal! */
+	printf("Hello Terminal!");
 	return EXIT_SUCCESS;
 }
