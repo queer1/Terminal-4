@@ -20,18 +20,14 @@
 
 #define DEFAULT_PORT 8000 //TODO: Allow port to be configurable from Config Tool
 #define BUF_SIZE 1024
-#define DEBUG 1 //TODO: Allow debug mode to be configurable from Config Tool
-/**
- * Encapsulates the debug logging
- */
-void debug(char *msg)
-{
-	if (DEBUG)
-		return;
 
-	printf("DEBUG: ");
-	printf(msg);
-	printf("\n");
+/**
+ * Sets the output to be displayed in console window
+ */
+void setstdoutput(void)
+{
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 }
 
 /**
@@ -39,9 +35,7 @@ void debug(char *msg)
  */
 void error(char *msg)
 {
-	perror("ERROR: ");
 	perror(msg);
-	perror("\n");
 	exit(1);
 }
 
@@ -60,31 +54,30 @@ void startserver(void)
 	int n; //message byte size
 
 	//creates the server socket
+	printf("DEBUG: creating server socket\n");
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (sockfd)
-	{
-		error("socket failed to open");
-	}
+	if (sockfd < 0)
+		error("ERROR: socket failed to open");
 
 	//allows the server to run immediately after killing it
+	printf("DEBUG: setting socket's options\n");
 	optval = 1;
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *) &optval,
 			sizeof(int));
 
 	//define the server's address
+	printf("DEBUG: defining server's address\n");
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY );
 	servaddr.sin_port = htons(port);
 
 	//binds the socket
+	printf("DEBUG: binding socket\n");
 	if (bind(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0)
-	{
-		error("socket failed to bind");
-	}
+		error("ERROR: socket failed to bind");
 
-	debug("server started");
-
+	printf("DEBUG: server started\n");
 	while (1)
 	{
 		//get UDP datagram from client
@@ -93,34 +86,32 @@ void startserver(void)
 		n = recvfrom(sockfd, buf, BUF_SIZE, 0, (struct sockaddr *) &cliaddr,
 				&len);
 		if (n < 0)
-		{
-			error("invalid command");
-		}
+			error("ERROR: invalid command");
 
 		//get sender of datagram for logging purposes
 		hostp = gethostbyaddr((const char *) &cliaddr.sin_addr.s_addr,
 				sizeof(cliaddr.sin_addr.s_addr), AF_INET);
 		if (hostp == NULL )
-		{
-			error("failed to get client's host info");
-		}
+			error("ERROR: failed to get client's host info");
 
 		hostaddrp = inet_ntoa(cliaddr.sin_addr);
 		if (hostaddrp == NULL )
-		{
-			error("failed to convert the client's address");
-		}
+			error("ERROR: failed to convert the client's address");
 
-		printf("INFO: received datagram from %s (%s)", hostp->h_name,
+		printf("INFO: received datagram from %s (%s)\n", hostp->h_name,
 				hostaddrp);
 		printf("INFO: received %d/%d bytes: %s\n", strlen(buf), n, buf);
+
+		//TODO: Encapsulate
+		if (strcmpi(buf, "TERM_DISCOVER") == 0)
+			strcpy(buf, "TERM_AVAIL");
+		else
+			strcpy(buf, "TERM_UNDEFINED");
 
 		n = sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *) &cliaddr,
 				sizeof(cliaddr));
 		if (n < 0)
-		{
-			error("failed sending response");
-		}
+			error("ERROR: failed sending response");
 	}
 
 	close(sockfd);
@@ -131,6 +122,10 @@ void startserver(void)
  */
 int main(void)
 {
+	//set standard output
+	setstdoutput();
+
+	//start the udp server
 	startserver();
 	return EXIT_SUCCESS;
 }
