@@ -86,24 +86,32 @@ void startserver(void)
 		n = recvfrom(sockfd, buf, BUF_SIZE, 0, (struct sockaddr *) &cliaddr,
 				&len);
 		if (n < 0)
-			error("ERROR: invalid command");
+			printf("ERROR: invalid command");
 
 		//get sender of datagram for logging purposes
 		hostp = gethostbyaddr((const char *) &cliaddr.sin_addr.s_addr,
 				sizeof(cliaddr.sin_addr.s_addr), AF_INET);
 		if (hostp == NULL )
-			error("ERROR: failed to get client's host info");
-
-		hostaddrp = inet_ntoa(cliaddr.sin_addr);
-		if (hostaddrp == NULL )
-			error("ERROR: failed to convert the client's address");
-
-		printf("INFO: received datagram from %s (%s)\n", hostp->h_name,
-				hostaddrp);
-		printf("INFO: received %d/%d bytes: %s\n", strlen(buf), n, buf);
+		{
+			printf("ERROR: failed to get client's host info");
+		}
+		else
+		{
+			hostaddrp = inet_ntoa(cliaddr.sin_addr);
+			if (hostaddrp == NULL )
+			{
+				printf("ERROR: failed to convert the client's address");
+			}
+			else
+			{
+				printf("INFO: received datagram from %s (%s)\n", hostp->h_name,
+						hostaddrp);
+				printf("INFO: received %d/%d bytes: %s\n", strlen(buf), n, buf);
+			}
+		}
 
 		//TODO: Encapsulate
-		if (strcmpi(buf, "TERM_DISCOVER") == 0)
+		if (strcmp(buf, "TERM_DISCOVER") == 0)
 			strcpy(buf, "TERM_AVAIL");
 		else
 			strcpy(buf, "TERM_UNDEFINED");
@@ -111,7 +119,7 @@ void startserver(void)
 		n = sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *) &cliaddr,
 				sizeof(cliaddr));
 		if (n < 0)
-			error("ERROR: failed sending response");
+			printf("ERROR: failed sending response");
 	}
 
 	close(sockfd);
