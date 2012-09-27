@@ -39,6 +39,15 @@ void error(char *msg)
 	exit(1);
 }
 
+char* processinput(char *input)
+{
+	if (strcmp(input, "TERM_DISCOVER") == 0)
+		strcpy(input, "TERM_AVAIL");
+	else
+		strcpy(input, "TERM_UNDEFINED");
+	return input;
+}
+
 /*
  * Starts the main UDP server loop for processing commands/messages from clients
  */
@@ -49,6 +58,7 @@ void startserver(void)
 	struct sockaddr_in servaddr, cliaddr; //server and client address
 	struct hostent *hostp; //client info
 	char buf[BUF_SIZE]; //message buffer
+	char *input; //message pointer
 	char *hostaddrp; //human-friendly address
 	int optval; //setsockopt flag
 	int n; //message byte size
@@ -80,27 +90,30 @@ void startserver(void)
 	printf("DEBUG: server started\n");
 	while (1)
 	{
+		printf("DEBUG: Waiting for command\n");
 		//get UDP datagram from client
 		int len = sizeof(cliaddr);
+
+		input = buf;
 		memset(&buf, 0, sizeof(buf));
 		n = recvfrom(sockfd, buf, BUF_SIZE, 0, (struct sockaddr *) &cliaddr,
 				&len);
 		if (n < 0)
-			printf("ERROR: invalid command");
+			printf("ERROR: invalid command\n");
 
 		//get sender of datagram for logging purposes
 		hostp = gethostbyaddr((const char *) &cliaddr.sin_addr.s_addr,
 				sizeof(cliaddr.sin_addr.s_addr), AF_INET);
 		if (hostp == NULL )
 		{
-			printf("ERROR: failed to get client's host info");
+			printf("ERROR: failed to get client's host info\n");
 		}
 		else
 		{
 			hostaddrp = inet_ntoa(cliaddr.sin_addr);
 			if (hostaddrp == NULL )
 			{
-				printf("ERROR: failed to convert the client's address");
+				printf("ERROR: failed to convert the client's address\n");
 			}
 			else
 			{
@@ -110,16 +123,11 @@ void startserver(void)
 			}
 		}
 
-		//TODO: Encapsulate
-		if (strcmp(buf, "TERM_DISCOVER") == 0)
-			strcpy(buf, "TERM_AVAIL");
-		else
-			strcpy(buf, "TERM_UNDEFINED");
-
+		input = processinput(input);
 		n = sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *) &cliaddr,
 				sizeof(cliaddr));
 		if (n < 0)
-			printf("ERROR: failed sending response");
+			printf("ERROR: failed sending response\n");
 	}
 
 	close(sockfd);
