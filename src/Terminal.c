@@ -40,13 +40,14 @@ error(char *msg)
  * Parses the specified string and overwrites it based on the analysis.
  * @param input The string to be parsed.
  */
-void
+char *
 parse_input(char *input)
 {
   if (strcmp(input, "TERM_DISCOVER") == 0)
     strcpy(input, "TERM_AVAIL");
   else
     strcpy(input, "TERM_UNDEFINED");
+  return input;
 }
 
 /*
@@ -56,23 +57,27 @@ void
 start_udp_server(void)
 {
   int received;
-  char *buf;
+  char buf[BUF_SIZE];
+  char *input;
 
   printf("DEBUG: creating udp socket\n");
   Socket *sock = comm_create_udp_server(DEFAULT_PORT);
 
   printf("DEBUG: server started\n");
+  input = buf;
   while (1)
     {
-      printf("DEBUG: waiting for command\n");
-      received = comm_receive(sock, buf, BUF_SIZE);
-      if (received < 0)
-        printf("ERROR: invalid command\n");
-
-      parse_input(buf);
-      received = comm_send(sock, buf, BUF_SIZE);
-      if (received < 0)
-        printf("ERROR: failed sending response\n");
+      memset(&buf, 0, sizeof(buf));
+      received = comm_receive(sock, buf, sizeof(buf));
+      if (received > 0)
+        {
+          printf("DEBUG: echo command - %s\n", buf);
+          input = parse_input(input);
+          printf("DEBUG: echo response - %s\n", buf);
+          received = comm_send(sock, buf, strlen(buf));
+          if (received < 0)
+            printf("ERROR: failed sending response\n");
+        }
     }
 
   comm_destroySocket(sock);

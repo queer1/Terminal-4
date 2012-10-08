@@ -61,7 +61,7 @@ set_no_delay(Socket *sock)
 }
 
 static Socket *
-create_udp_socket(int port, int bufsize)
+create_udp_socket(int bufsize)
 {
   Socket *sock = malloc(sizeof(*sock));
   if (sock)
@@ -168,7 +168,7 @@ comm_create_udp_server(int port)
   if (sock)
     {
       memset(sock, 0, sizeof(*sock));
-      sock = create_udp_socket(port, 0);
+      sock = create_udp_socket(0);
       if (sock->sock == INVALID_SOCKET)
         {
           free(sock);
@@ -176,7 +176,11 @@ comm_create_udp_server(int port)
         }
       else
         {
-          comm_bind(sock, port);
+          if (comm_bind(sock, port) != 0)
+            {
+              comm_destroySocket(sock);
+              sock = NULL;
+            }
         }
     }
   return sock;
@@ -190,17 +194,20 @@ get_available_bytes(Socket *sock)
   int nfds = FD_SETSIZE;
   struct timeval teval = create_timeval_from_ms(timeout);
   fd_set readfds;
-  FD_ZERO( &readfds);
+  FD_ZERO(&readfds);
   FD_SET( sock->sock, &readfds);
   rc = select(nfds, &readfds, NULL/*writefds*/, NULL/*exceptfds*/, &teval);
   if (rc == SOCKET_ERROR)
     {
+      printf("DEBUG: get_available_bytes - SOCKET_ERROR\n");
     }
   else if (rc == 0)
-    { // timeout
+    {
+      printf("DEBUG: get_available_bytes - timeout\n");
     }
   else if (FD_ISSET( sock->sock, &readfds ))
     {
+      printf("DEBUG: get_available_bytes - FD_ISSET\n");
       return 1;
     }
   return 0;
@@ -301,8 +308,8 @@ int
 comm_send(Socket *sock, void *buf, size_t len)
 {
   int flags = 0;
-  return sendto(sock->sock, buf, len, flags, (struct sockaddr *) &sock->cliaddr,
-      sizeof(SOCKADDR_IN));
+  return sendto(sock->sock, buf, len, flags,
+      (struct sockaddr *) &sock->cliaddr, sizeof(SOCKADDR_IN));
 }
 
 int
@@ -310,10 +317,12 @@ comm_receive(Socket *sock, void *buf, size_t len)
 {
   if (get_available_bytes(sock))
     {
-      socklen_t fromlen = sizeof(SOCKADDR_IN);
       int flags = 0;
+      socklen_t fromlen = sizeof(SOCKADDR_IN);
+      printf("DEBUG: comm_receive - socket=%d\n", sock->sock);
       int rc = recvfrom(sock->sock, buf, len, flags,
           (struct sockaddr *) &sock->cliaddr, &fromlen);
+      printf("DEBUG: comm_receive - rc=%d\n", rc);
       return rc;
     }
   return 0;
