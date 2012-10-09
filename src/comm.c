@@ -99,21 +99,7 @@ create_tcp_socket(int bufsize) {
 }
 
 char *comm_get_cli_address(Socket *sock) {
-	struct hostent *host;
-	char *hostaddr;
-
-	host = gethostbyaddr((const char *) &sock->cliaddr.sin_addr.s_addr,
-			sizeof(sock->cliaddr.sin_addr.s_addr), AF_INET);
-	if (host == NULL ) {
-		printf("ERROR: failed to get client's host info\n");
-		strcpy(hostaddr, "Unknown");
-	} else {
-		hostaddr = inet_ntoa(sock->cliaddr.sin_addr);
-		if (hostaddr == NULL ) {
-			strcpy(hostaddr, "Unknown");
-		}
-	}
-	return hostaddr;
+	return inet_ntoa(sock->cliaddr.sin_addr);
 }
 
 unsigned int comm_get_address(void) {
