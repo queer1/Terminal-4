@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.debug.312450200/append=true
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.debug.312450200/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1390741676/GST_INCLUDES/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1390741676/GST_INCLUDES/operation=append
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1390741676/GST_INCLUDES/value=C\:\\Program Files (x86)\\OSSBuild\\GStreamer\\v0.10.7\\sdk\\include\\gstreamer-0.10
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1390741676/append=true
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1390741676/appendContributed=true

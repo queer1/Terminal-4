@@ -32,8 +32,10 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.cygwin.exe.debug.option.optimization.level.96222614" name="Optimization Level" superClass="gnu.c.compiler.cygwin.exe.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.cygwin.exe.debug.option.debugging.level.1712744619" name="Debug Level" superClass="gnu.c.compiler.cygwin.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.296114648" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include\gstreamer-0.10&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include\glib-2.0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\sdk\include\gstreamer-0.10&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\sdk\include\glib-2.0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\sdk\include\libxml2&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\sdk\include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.221302158" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
 							</tool>
@@ -76,6 +78,7 @@
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include\gstreamer-0.10&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${GST_INCLUDES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\bin&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1501803700" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -90,6 +93,8 @@
 								<option id="gnu.c.compiler.option.include.paths.1943746558" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include\gstreamer-0.10&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.6\sdk\include\glib-2.0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\sdk\include\libxml2&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\OSSBuild\GStreamer\v0.10.7\bin&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.1621436644" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
 							</tool>
@@ -131,4 +136,5 @@
 			<resource resourceType="PROJECT" workspacePath="/Terminal"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
