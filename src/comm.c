@@ -163,7 +163,7 @@ static int get_available_bytes(Socket *sock) {
 	if (rc == SOCKET_ERROR) {
 		printf("DEBUG: get_available_bytes - SOCKET_ERROR\n");
 	} else if (rc == 0) {
-		printf("DEBUG: get_available_bytes - timeout\n");
+		//printf("DEBUG: get_available_bytes - timeout\n");
 	} else if (FD_ISSET( sock->sock, &readfds )) {
 		printf("DEBUG: get_available_bytes - FD_ISSET\n");
 		return 1;
