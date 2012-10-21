@@ -1,6 +1,25 @@
 #include <gst/gst.h>
 #include <glib.h>
 
+gboolean media_link_elements_with_filter(GstElement *v4l2src,
+		GstElement *dmaiaccel) {
+	gboolean link_ok;
+	GstCaps *caps;
+
+	caps = gst_caps_new_simple("video/x-raw-yuv", "format", G_TYPE_STRING,
+			"NV12", "width", "width", G_TYPE_INT, 384, "height", G_TYPE_INT,
+			288, NULL );
+
+	link_ok = gst_element_link_filtered(v4l2src, dmaiaccel, caps);
+	gst_caps_unref(caps);
+
+	if (!link_ok) {
+		g_warning("Failed to link v4l2src and dmaiaccel.");
+	}
+
+	return link_ok;
+}
+
 int media_stream_init(int argc, char *argv[], char *host, int port) {
 	GMainLoop *loop;
 	GstElement *pipeline, *source, *dmaiaccel, *queue, *encoder, *sink;
@@ -49,23 +68,4 @@ int media_stream_init(int argc, char *argv[], char *host, int port) {
 	gst_element_link_many(source, dmaiaccel, queue, encoder, sink, NULL );
 	media_link_elements_with_filter(source, dmaiaccel);
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);
-}
-
-gboolean media_link_elements_with_filter(GstElement *v4l2src,
-		GstElement *dmaiaccel) {
-	gboolean link_ok;
-	GstCaps *caps;
-
-	caps = gst_caps_new_simple("video/x-raw-yuv", "format", G_TYPE_STRING,
-			"NV12", "width", "width", G_TYPE_INT, 384, "height", G_TYPE_INT,
-			288, NULL );
-
-	link_ok = gst_element_link_filtered(v4l2src, dmaiaccel, caps);
-	gst_caps_unref(caps);
-
-	if (!link_ok) {
-		g_warning("Failed to link v4l2src and dmaiaccel.");
-	}
-
-	return link_ok;
 }

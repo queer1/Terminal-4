@@ -33,6 +33,10 @@ void error(char *msg) {
 	exit(1);
 }
 
+int start_stream(Socket *sock) {
+	return media_stream_init(0, NULL, comm_get_cli_address(sock), DEFAULT_PORT);
+}
+
 /**
  * Parses the specified string and overwrites it based on the analysis.
  * @param input The string to be parsed.
@@ -82,10 +86,6 @@ void start_udp_server(void) {
 
 void start_tcp_server(void) {
 	return;
-}
-
-int start_stream(Socket *sock) {
-	return media_stream_init(0, NULL, comm_get_cli_address(sock), DEFAULT_PORT);
 }
 
 /**
