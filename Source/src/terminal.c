@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
-#include <semaphore.h>
+//#include <pthread.h>
+//#include <semaphore.h>
 
 #define BROADCAST_PORT 8000
 #define STREAM_PORT 15000
@@ -123,12 +123,13 @@ void *start_tcp_server(void *arg) {
 int main(int argc, char *argv[]) {
 	setstdoutput();
 
-	pthread_t ucp_server_thread, tcp_server_thread;
-	pthread_create(&ucp_server_thread, NULL, start_udp_server, NULL );
+	start_udp_server(NULL);
+	//pthread_t ucp_server_thread, tcp_server_thread;
+	//pthread_create(&ucp_server_thread, NULL, start_udp_server, NULL );
 	//pthread_create(&tcp_server_thread, NULL, start_tcp_server, NULL );
 
 	printf("DEBUG: Waiting for threads to terminate\n");
-	pthread_join(ucp_server_thread, NULL);
+	//pthread_join(ucp_server_thread, NULL);
 	//pthread_join(tcp_server_thread, NULL);
 
 	return EXIT_SUCCESS;
