@@ -8,6 +8,6 @@
 #ifndef MEDIA_H_
 #define MEDIA_H_
 
-int media_stream_init(int argc, char *argv[], char *host, int port);
+int media_stream_init(char *host, int port);
 
 #endif /* MEDIA_H_ */

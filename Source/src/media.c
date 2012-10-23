@@ -1,3 +1,32 @@
+#include "media.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int media_stream_init(char *host, int port) {
+	printf("DEBUG: Initializing stream\n");
+
+	char hostvar[80] = "HOST=";
+	strcat(hostvar, host);
+
+	printf("DEBUG: %s\n", hostvar);
+
+	char portvar[80] = "PORT=";
+	char portstr[80];
+	snprintf(portstr, 6, "%d", port);
+	strcat(portvar, portstr);
+
+	printf("DEBUG: %s\n", portvar);
+
+	system(hostvar);
+	system(portvar);
+
+	return system("./stream.sh");
+}
+
+/*
+
 #include <gst/gst.h>
 #include <glib.h>
 
@@ -69,3 +98,5 @@ int media_stream_init(int argc, char *argv[], char *host, int port) {
 	media_link_elements_with_filter(source, dmaiaccel);
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);
 }
+
+*/

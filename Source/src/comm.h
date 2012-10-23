@@ -11,7 +11,6 @@
 struct Socket;
 typedef struct Socket Socket;
 
-#include "media.h"
 #include <stddef.h>
 
 #define DEFAULT_PORT 8000 //TODO: Allow port to be configurable from Config Tool

@@ -1,3 +1,6 @@
 gst-launch -v v4l2src always-copy=FALSE ! video/x-raw-yuv,format=\(fourcc\)NV12, width=640, height=480 ! dmaiaccel ! queue ! dmaienc_mpeg4 ! udpsink host=192.168.0.104 port=5000
 
 gst-launch-0.10 udpsrc port=5000 caps="video/mpeg, mpegversion=(int)4, systemstream=(boolean)false, framerate=(fraction)60/1, width=(int)640, height=(int)480,pixel-aspect-ratio=(fraction)1/1, codec_data=(buffer)000001b005000001b50ecf00000100000001200086e0002ea6600b7c52c999cba98514043c1463" ! ffdec_mpeg4 ! ffmpegcolorspace ! ximagesink
+
+Sample for 720p:
+gst-launch -e v4l2src always-copy=false ! video/x-raw-yuv,format=\(fourcc\)UYVY, width=1280, height=720, framerate=\(fraction\)23/1 ! dmaiaccel ! dmaienc_h264 encodingpreset=2 ! queue ! qtmux ! filesink location= myvideo.mp4
