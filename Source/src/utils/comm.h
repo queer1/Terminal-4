@@ -22,7 +22,7 @@ Socket *comm_create_tcp_client(void);
 char *comm_get_cli_address(Socket *sock);
 unsigned int comm_get_address(void);
 
-void comm_sendTo(Socket *sock, const char *hostname, int port);
+void comm_sendto(Socket *sock, const char *hostname, int port);
 int comm_send(Socket *sock, void *buf, size_t len);
 int comm_receive(Socket *sock, void *buf, size_t len);
 int comm_write(Socket *sock, const void *buf, size_t len);

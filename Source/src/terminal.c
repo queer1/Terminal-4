@@ -8,13 +8,14 @@
  ============================================================================
  */
 
-#include "comm.h"
-#include "media.h"
+#include "utils/comm.h"
+#include "utils/media.h"
+#include "utils/xml.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <pthread.h>
-//#include <semaphore.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #define BROADCAST_PORT 8000
 #define STREAM_PORT 15000
@@ -66,10 +67,10 @@ void *start_udp_server(void *arg) {
 	char buf[BUF_SIZE];
 	char *input;
 
-	printf("DEBUG: creating udp socket\n");
+	printf("INFO: Creating UDP server\n");
 	Socket *sock = comm_create_udp_server(BROADCAST_PORT);
 
-	printf("DEBUG: udp server started\n");
+	printf("INFO: UDP server started\n");
 	input = buf;
 	while (1) {
 		memset(&buf, 0, sizeof(buf));
@@ -85,6 +86,8 @@ void *start_udp_server(void *arg) {
 	}
 
 	comm_destroySocket(sock);
+
+	pthread_exit(0);
 }
 
 void *start_tcp_server(void *arg) {
@@ -92,16 +95,16 @@ void *start_tcp_server(void *arg) {
 	char buf[BUF_SIZE];
 	char *input;
 
-	printf("DEBUG: creating tcp socket\n");
+	printf("INFO: Creating TCP socket\n");
 	Socket *sock = comm_create_tcp_server(TCP_PORT, 1);
 
-	printf("DEBUG: tcp server started\n");
+	printf("INFO: TCP server started\n");
 	while (1) {
 		Socket *client = comm_accept_connection(sock, 1000, sizeof(buf));
 		if (client == NULL )
 			continue;
 
-		printf("DEBUG: client connected - %s", comm_get_cli_address(client));
+		printf("INFO: Client connected - %s", comm_get_cli_address(client));
 		while (1) {
 			memset(&buf, 0, sizeof(buf));
 			received = comm_receive(client, buf, sizeof(buf));
@@ -115,22 +118,27 @@ void *start_tcp_server(void *arg) {
 			}
 		}
 	}
+
+	pthread_exit(0);
 }
 
 /**
  * Starting point of the application
  */
 int main(int argc, char *argv[]) {
+	pthread_t ucp_server_thread, tcp_server_thread;
+
 	setstdoutput();
+	printf("Starting Hawkeye Terminal\n");
 
-	start_udp_server(NULL);
-	//pthread_t ucp_server_thread, tcp_server_thread;
-	//pthread_create(&ucp_server_thread, NULL, start_udp_server, NULL );
-	//pthread_create(&tcp_server_thread, NULL, start_tcp_server, NULL );
+	pthread_create(&ucp_server_thread, NULL, start_udp_server, NULL );
+	pthread_create(&tcp_server_thread, NULL,start_tcp_server, NULL );
 
-	printf("DEBUG: Waiting for threads to terminate\n");
-	//pthread_join(ucp_server_thread, NULL);
-	//pthread_join(tcp_server_thread, NULL);
+	printf("INFO: All threads started\n");
+	pthread_join(ucp_server_thread, NULL);
+	pthread_join(tcp_server_thread, NULL);
+
+	printf("INFO: All threads closed\n");
 
 	return EXIT_SUCCESS;
 }
