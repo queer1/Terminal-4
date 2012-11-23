@@ -35,7 +35,7 @@
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.221302158" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.cygwin.exe.debug.248249710" name="Cygwin C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.cygwin.exe.debug">
-								<option id="gnu.c.link.option.libs.1999886642" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="gnu.c.link.option.libs.1999886642" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="json"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1889516656" superClass="cdt.managedbuild.tool.gnu.c.linker.input">

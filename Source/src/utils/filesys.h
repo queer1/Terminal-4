@@ -8,6 +8,6 @@
 #ifndef FILESYS_H_
 #define FILESYS_H_
 
-char *filesys_get(char *dir);
+char *filesys_get(const char *dir);
 
 #endif /* FILESYS_H_ */

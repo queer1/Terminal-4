@@ -153,19 +153,20 @@ comm_create_udp_server(int port) {
 
 static int get_available_bytes(Socket *sock) {
 	int rc;
-	int timeout = 1000;
+	int timeout = 2000;
 	int nfds = FD_SETSIZE;
 	struct timeval teval = create_timeval_from_ms(timeout);
 	fd_set readfds;
 	FD_ZERO(&readfds);
 	FD_SET(sock->sock, &readfds);
 	rc = select(nfds, &readfds, NULL/*writefds*/, NULL/*exceptfds*/, &teval);
+	//printf("DEBUG: get_available_bytes - rc = %d\n", rc);
 	if (rc == SOCKET_ERROR) {
-		//printf("DEBUG: get_available_bytes - SOCKET_ERROR\n");
+		return SOCKET_ERROR;
 	} else if (rc == 0) {
 		//printf("DEBUG: get_available_bytes - timeout\n");
 	} else if (FD_ISSET(sock->sock, &readfds)) {
-		//printf("DEBUG: get_available_bytes - FD_ISSET\n");
+		printf("DEBUG: get_available_bytes - FD_ISSET\n");
 		return 1;
 	}
 
@@ -178,7 +179,7 @@ comm_create_tcp_server(int port, int maxconn) {
 	if (sock) {
 
 		if (comm_bind(sock, port) != 0 || comm_listen(sock, maxconn) != 0) {
-			printf("DEBUG: create_tcp_server - failed to bind");
+			printf("DEBUG: create_tcp_server - failed to bind\n");
 			comm_destroySocket(sock);
 			sock = NULL;
 		}
@@ -250,6 +251,7 @@ void comm_sendto(Socket *sock, const char *hostname, int port) {
 
 int comm_send(Socket *sock, void *buf, size_t len) {
 	int flags = 0;
+	printf("DEBUG: comm_send - client=%s\n", comm_get_cli_address(sock));
 	return sendto(sock->sock, buf, len, flags,
 			(struct sockaddr *) &sock->cliaddr, sizeof(SOCKADDR_IN));
 }
@@ -261,6 +263,9 @@ int comm_receive(Socket *sock, void *buf, size_t len) {
 		printf("DEBUG: comm_receive - socket=%d\n", sock->sock);
 		int rc = recvfrom(sock->sock, buf, len, flags,
 				(struct sockaddr *) &sock->cliaddr, &fromlen);
+
+		if (rc == 0)
+			return SOCKET_ERROR;
 
 		printf("DEBUG: comm_receive - rc=%d\n", rc);
 		printf("DEBUG: comm_receive - from=%s\n", comm_get_cli_address(sock));

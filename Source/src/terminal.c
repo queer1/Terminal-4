@@ -52,19 +52,20 @@ parse_input(Socket *sock, char *input) {
 	json_object *jobj;
 	json_object *action_obj;
 	json_object *action_data_obj;
-	char action[BUF_SIZE];
+	char action[sizeof(input)];
 
 	jobj = json_tokener_parse(input);
 	action_obj = json_object_object_get(jobj, "action");
 	strcpy(action, json_object_get_string(action_obj));
-	if (strcmp(action, "discover")) {
+	printf("INFO: Looking for action: %s\n", action);
+	if (strcmp(action, "discovery") == 0) {
 		return json_object_to_json_string(jobj);
-	} else if (strcmp(action, "getfiles")) {
+	} else if (strcmp(action, "getfiles") == 0) {
 		action_data_obj = json_object_object_get(jobj, "actiondata");
 		return filesys_get(json_object_to_json_string(action_data_obj));
 	}
 
-	return NULL ;
+	return "";
 }
 
 /*
@@ -86,7 +87,7 @@ void *start_udp_server(void *arg) {
 			if (received > 0) {
 				printf("DEBUG: echo command - %s\n", buf);
 				strcpy(buf, parse_input(sock, buf));
-				printf("DEBUG: echo response - %s\n", buf);
+				printf("DEBUG: send response - %s\n", buf);
 				received = comm_send(sock, buf, strlen(buf));
 				if (received < 0)
 					printf("ERROR: failed sending response\n");
@@ -117,19 +118,18 @@ void *start_tcp_server(void *arg) {
 			if (client == NULL )
 				continue;
 
-			printf("INFO: Client connected - %s", comm_get_cli_address(client));
+			printf("INFO: Client connected - %s\n", comm_get_cli_address(client));
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				received = comm_receive(client, buf, sizeof(buf));
 				if (received > 0) {
 					printf("DEBUG: echo command - %s\n", buf);
-					strcpy(buf, parse_input(sock, buf));
-					printf("DEBUG: echo response - %s\n", buf);
-					received = comm_send(sock, buf, strlen(buf));
+					strcpy(buf, parse_input(client, buf));
+					printf("DEBUG: send response - %s\n", buf);
+					received = comm_send(client, buf, strlen(buf));
 					if (received < 0)
 						printf("ERROR: failed sending response\n");
 				} else if (received == -1) {
-					close(client);
 					break;
 				}
 			}

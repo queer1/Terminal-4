@@ -13,7 +13,7 @@
 #include <string.h>
 #include <errno.h>
 
-char *filesys_get(char *dir)
+char *filesys_get(const char *dir)
 {
 	DIR *d = opendir(dir);
 
@@ -25,6 +25,7 @@ char *filesys_get(char *dir)
 		struct dirent *entry;
 		entry = readdir(d);
 		if (!entry) {
+			printf("ERROR: Failed to read directory");
 			break;
 		}
 		printf ("%s\n", entry->d_name);
@@ -34,6 +35,6 @@ char *filesys_get(char *dir)
     	//TODO: Log;
     }
 
-    return NULL;
+    return "";
 }
 
