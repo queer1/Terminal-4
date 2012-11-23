@@ -158,24 +158,27 @@ static int get_available_bytes(Socket *sock) {
 	struct timeval teval = create_timeval_from_ms(timeout);
 	fd_set readfds;
 	FD_ZERO(&readfds);
-	FD_SET( sock->sock, &readfds);
+	FD_SET(sock->sock, &readfds);
 	rc = select(nfds, &readfds, NULL/*writefds*/, NULL/*exceptfds*/, &teval);
 	if (rc == SOCKET_ERROR) {
-		printf("DEBUG: get_available_bytes - SOCKET_ERROR\n");
+		//printf("DEBUG: get_available_bytes - SOCKET_ERROR\n");
 	} else if (rc == 0) {
 		//printf("DEBUG: get_available_bytes - timeout\n");
-	} else if (FD_ISSET( sock->sock, &readfds )) {
-		printf("DEBUG: get_available_bytes - FD_ISSET\n");
+	} else if (FD_ISSET(sock->sock, &readfds)) {
+		//printf("DEBUG: get_available_bytes - FD_ISSET\n");
 		return 1;
 	}
+
 	return 0;
 }
 
 Socket *
 comm_create_tcp_server(int port, int maxconn) {
-	Socket *sock = create_tcp_socket(0); //TODO: Use set buffer?
+	Socket *sock = create_tcp_socket(1024);
 	if (sock) {
+
 		if (comm_bind(sock, port) != 0 || comm_listen(sock, maxconn) != 0) {
+			printf("DEBUG: create_tcp_server - failed to bind");
 			comm_destroySocket(sock);
 			sock = NULL;
 		}
@@ -186,23 +189,29 @@ comm_create_tcp_server(int port, int maxconn) {
 Socket *
 comm_accept_connection(Socket *sock, unsigned timeout, int bufsize) {
 	Socket *client = NULL;
+	struct sockaddr_in cli_addr;
+	unsigned int cli_addr_len;
+
 	if (sock) {
 		int rc;
 		int nfds = sock->sock + 1;
 		struct timeval teval = create_timeval_from_ms(timeout);
 		fd_set readfds;
 		FD_ZERO(&readfds);
+		FD_SET(sock->sock, &readfds);
 		rc = select(nfds, &readfds, NULL /*writefds*/, NULL /*exceptfds*/,
 				&teval);
 		if (rc == SOCKET_ERROR) {
-
+			printf("DEBUG: accept_connection - SOCKET_ERROR\n");
 		} else if (rc > 0) {
+			printf("DEBUG: accept_connection - Sockets: %d\n", rc);
 			/* rc contains number of sockets */
 			if (FD_ISSET(sock->sock, &readfds)) {
 				client = create_tcp_socket(bufsize);
 				if (client) {
-					client->sock = accept(sock->sock, NULL /*addr*/,
-							NULL /*addrlen*/);
+					cli_addr_len = sizeof(cli_addr);
+					client->sock = accept(sock->sock, (struct sockaddr *) &cli_addr, &cli_addr_len);
+					client->cliaddr = cli_addr;
 				}
 			}
 		}
@@ -257,6 +266,7 @@ int comm_receive(Socket *sock, void *buf, size_t len) {
 		printf("DEBUG: comm_receive - from=%s\n", comm_get_cli_address(sock));
 		return rc;
 	}
+
 	return 0;
 }
 
