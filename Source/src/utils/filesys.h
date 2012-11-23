@@ -8,6 +8,8 @@
 #ifndef FILESYS_H_
 #define FILESYS_H_
 
-char *filesys_get(const char *dir);
+#include <json/json.h>
+
+json_object *filesys_get(json_object *jobj);
 
 #endif /* FILESYS_H_ */

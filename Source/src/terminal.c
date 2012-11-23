@@ -51,8 +51,7 @@ const char *
 parse_input(Socket *sock, char *input) {
 	json_object *jobj;
 	json_object *action_obj;
-	json_object *action_data_obj;
-	char action[sizeof(input)];
+	char *action;
 
 	jobj = json_tokener_parse(input);
 	action_obj = json_object_object_get(jobj, "action");
@@ -61,8 +60,7 @@ parse_input(Socket *sock, char *input) {
 	if (strcmp(action, "discovery") == 0) {
 		return json_object_to_json_string(jobj);
 	} else if (strcmp(action, "getfiles") == 0) {
-		action_data_obj = json_object_object_get(jobj, "actiondata");
-		return filesys_get(json_object_to_json_string(action_data_obj));
+		return json_object_to_json_string(filesys_get(jobj));
 	}
 
 	return "";
@@ -72,7 +70,7 @@ parse_input(Socket *sock, char *input) {
  * Starts the main UDP server loop for processing commands/messages from clients
  */
 void *start_udp_server(void *arg) {
-	int received;
+	int bytes;
 	char buf[BUF_SIZE];
 	Socket *sock;
 
@@ -83,13 +81,13 @@ void *start_udp_server(void *arg) {
 		printf("INFO: UDP server started\n");
 		while (1) {
 			memset(&buf, 0, sizeof(buf));
-			received = comm_receive(sock, buf, sizeof(buf));
-			if (received > 0) {
+			bytes = comm_receive(sock, buf, sizeof(buf));
+			if (bytes > 0) {
 				printf("DEBUG: echo command - %s\n", buf);
 				strcpy(buf, parse_input(sock, buf));
 				printf("DEBUG: send response - %s\n", buf);
-				received = comm_send(sock, buf, strlen(buf));
-				if (received < 0)
+				bytes = comm_send(sock, buf, strlen(buf));
+				if (bytes < 0)
 					printf("ERROR: failed sending response\n");
 			}
 		}
@@ -102,7 +100,7 @@ void *start_udp_server(void *arg) {
 }
 
 void *start_tcp_server(void *arg) {
-	int received;
+	int bytes;
 	char buf[BUF_SIZE];
 	Socket *sock;
 	Socket *client;
@@ -121,15 +119,16 @@ void *start_tcp_server(void *arg) {
 			printf("INFO: Client connected - %s\n", comm_get_cli_address(client));
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
-				received = comm_receive(client, buf, sizeof(buf));
-				if (received > 0) {
+				bytes = comm_receive(client, buf, sizeof(buf));
+				if (bytes > 0) {
 					printf("DEBUG: echo command - %s\n", buf);
 					strcpy(buf, parse_input(client, buf));
 					printf("DEBUG: send response - %s\n", buf);
-					received = comm_send(client, buf, strlen(buf));
-					if (received < 0)
+					bytes = comm_send(client, buf, strlen(buf));
+					printf("Sent: %d\n", bytes);
+					if (bytes < 0)
 						printf("ERROR: failed sending response\n");
-				} else if (received == -1) {
+				} else if (bytes == -1) {
 					break;
 				}
 			}
