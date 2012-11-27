@@ -18,7 +18,7 @@ void format_time(char *buf, struct tm *time) {
 	strftime(buf, 25, "%m/%d/%Y %H:%M:%S %p", time);
 }
 
-json_object *filesys_get(json_object *jobj) {
+json_object *filesys_get_filelist(json_object *jobj) {
 	json_object *action_obj;
 	json_object *action_data_obj;
 
@@ -26,7 +26,7 @@ json_object *filesys_get(json_object *jobj) {
 			json_object_get_string(json_object_object_get(jobj, "actiondata")));
 
 	jobj = json_object_new_object();
-	action_obj = json_object_new_string("getfiles");
+	action_obj = json_object_new_string("getfilelist");
 
 	if (d) {
 		action_data_obj = json_object_new_object();
@@ -87,4 +87,19 @@ json_object *filesys_get(json_object *jobj) {
 
 	return jobj;
 }
+
+json_object *filesys_get_profiles() {
+
+}
+
+json_object *filesys_save_profiles(json_object *jobj) {
+	json_object *action_obj;
+	json_object *action_data_obj;
+
+	//TODO: Save profiles to the file system
+	//TODO: Activate the profile
+
+	return filesys_get_profiles();
+}
+
 

@@ -55,12 +55,16 @@ parse_input(Socket *sock, char *input) {
 
 	jobj = json_tokener_parse(input);
 	action_obj = json_object_object_get(jobj, "action");
-	strcpy(action, json_object_get_string(action_obj));
-	printf("INFO: Looking for action: %s\n", action);
-	if (strcmp(action, "discovery") == 0) {
-		return json_object_to_json_string(jobj);
-	} else if (strcmp(action, "getfiles") == 0) {
-		return json_object_to_json_string(filesys_get(jobj));
+	if (action_obj) {
+		strcpy(action, json_object_get_string(action_obj));
+		printf("INFO: Looking for action: %s\n", action);
+		if (strcmp(action, "discovery") == 0) {
+			return json_object_to_json_string(jobj);
+		} else if (strcmp(action, "getfilelist") == 0) {
+			return json_object_to_json_string(filesys_get_filelist(jobj));
+		} else if (strcmp(action, "sendprofiles") == 0) {
+			return json_object_to_json_string(filesys_save_profiles(jobj));
+		}
 	}
 
 	return "";
