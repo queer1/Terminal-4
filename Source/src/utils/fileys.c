@@ -27,6 +27,7 @@ json_object *filesys_get_filelist(json_object *jobj) {
 
 	jobj = json_object_new_object();
 	action_obj = json_object_new_string("getfilelist");
+	json_object_object_add(jobj, "action", action_obj);
 
 	if (d) {
 		action_data_obj = json_object_new_object();
@@ -82,24 +83,44 @@ json_object *filesys_get_filelist(json_object *jobj) {
 		action_data_obj = json_object_new_string("Failed to open directory");
 	}
 
-	json_object_object_add(jobj, "action", action_obj);
 	json_object_object_add(jobj, "actiondata", action_data_obj);
-
 	return jobj;
 }
 
 json_object *filesys_get_profiles() {
+	json_object *jobj;
+	json_object *action_obj;
+	json_object *action_data_obj;
+	FILE *file;
 
+	jobj = json_object_new_object();
+	action_obj = json_object_new_string("getprofiles");
+	json_object_object_add(jobj, "action", action_obj);
+
+	file = fopen("profiles", "r+");
+	if (!file) {
+		action_data_obj = json_object_new_string("No profile configuration found");
+	} else {
+		action_data_obj = json_object_from_file("profiles");
+		fclose(file);
+	}
+
+	json_object_object_add(jobj, "actiondata", action_data_obj);
+	return jobj;
 }
 
 json_object *filesys_save_profiles(json_object *jobj) {
-	json_object *action_obj;
 	json_object *action_data_obj;
+	FILE *file;
 
-	//TODO: Save profiles to the file system
+	action_data_obj = json_object_object_get(jobj, "actiondata");
+
+	file = fopen("profiles", "w+");
+	fprintf(file, json_object_to_json_string(action_data_obj));
+	fclose(file);
+
 	//TODO: Activate the profile
 
 	return filesys_get_profiles();
 }
-
 

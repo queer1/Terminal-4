@@ -21,7 +21,7 @@
 #define BROADCAST_PORT 8000
 #define STREAM_PORT 15000
 #define TCP_PORT 9000
-#define BUF_SIZE 1024
+#define BUF_SIZE 8000
 
 /**
  * Sets the output to be displayed in console window
@@ -62,6 +62,8 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(jobj);
 		} else if (strcmp(action, "getfilelist") == 0) {
 			return json_object_to_json_string(filesys_get_filelist(jobj));
+		} else if (strcmp(action, "getprofiles") == 0) {
+			return json_object_to_json_string(filesys_get_profiles());
 		} else if (strcmp(action, "sendprofiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
 		}
@@ -90,6 +92,7 @@ void *start_udp_server(void *arg) {
 				printf("DEBUG: echo command - %s\n", buf);
 				strcpy(buf, parse_input(sock, buf));
 				printf("DEBUG: send response - %s\n", buf);
+				strcat(buf, "|");
 				bytes = comm_send(sock, buf, strlen(buf));
 				if (bytes < 0)
 					printf("ERROR: failed sending response\n");
@@ -120,7 +123,8 @@ void *start_tcp_server(void *arg) {
 			if (client == NULL )
 				continue;
 
-			printf("INFO: Client connected - %s\n", comm_get_cli_address(client));
+			printf("INFO: Client connected - %s\n",
+					comm_get_cli_address(client));
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));
@@ -128,6 +132,7 @@ void *start_tcp_server(void *arg) {
 					printf("DEBUG: echo command - %s\n", buf);
 					strcpy(buf, parse_input(client, buf));
 					printf("DEBUG: send response - %s\n", buf);
+					strcat(buf, "|");
 					bytes = comm_send(client, buf, strlen(buf));
 					printf("Sent: %d\n", bytes);
 					if (bytes < 0)
