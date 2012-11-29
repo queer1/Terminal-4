@@ -19,18 +19,13 @@ void format_time(char *buf, struct tm *time) {
 }
 
 json_object *filesys_get_filelist(json_object *jobj) {
-	json_object *action_obj;
-	json_object *action_data_obj;
+	json_object *action_data;
 
 	DIR *d = opendir(
-			json_object_get_string(json_object_object_get(jobj, "actiondata")));
-
-	jobj = json_object_new_object();
-	action_obj = json_object_new_string("getfilelist");
-	json_object_object_add(jobj, "action", action_obj);
+			json_object_get_string(json_object_object_get(jobj, "ActionData")));
 
 	if (d) {
-		action_data_obj = json_object_new_object();
+		action_data = json_object_new_object();
 		json_object *directories = json_object_new_array();
 		json_object *files = json_object_new_array();
 		struct stat s;
@@ -41,9 +36,8 @@ json_object *filesys_get_filelist(json_object *jobj) {
 			entry = readdir(d);
 
 			if (!entry) {
-				json_object_object_add(action_data_obj, "Directories",
-						directories);
-				json_object_object_add(action_data_obj, "Files", files);
+				json_object_object_add(action_data, "Directories", directories);
+				json_object_object_add(action_data, "Files", files);
 				break;
 			}
 
@@ -80,44 +74,61 @@ json_object *filesys_get_filelist(json_object *jobj) {
 		}
 
 	} else {
-		action_data_obj = json_object_new_string("Failed to open directory");
+		action_data = json_object_new_string("Failed to open directory");
 	}
 
-	json_object_object_add(jobj, "actiondata", action_data_obj);
+	json_object_object_add(jobj, "ActionData", action_data);
+	return jobj;
+}
+
+json_object *filesys_delete_file(json_object *jobj) {
+	json_object *action_data;
+	char *file;
+
+	strcpy(file,
+			json_object_get_string(json_object_object_get(jobj, "ActionData")));
+	action_data = json_object_new_boolean(!remove(file));
+	return action_data;
+}
+
+json_object *filesys_get_file(json_object *jobj) {
+	json_object *action_data;
+	char *file;
+
+	strcpy(file,
+			json_object_get_string(json_object_object_get(jobj, "ActionData")));
+	json_object_object_add(jobj, "ActionData", action_data);
 	return jobj;
 }
 
 json_object *filesys_get_profiles() {
 	json_object *jobj;
-	json_object *action_obj;
-	json_object *action_data_obj;
-	FILE *file;
+	json_object *action;
+	json_object *action_data;
+	FILE *fp;
 
 	jobj = json_object_new_object();
-	action_obj = json_object_new_string("getprofiles");
-	json_object_object_add(jobj, "action", action_obj);
+	action = json_object_new_string("GetProfiles");
+	json_object_object_add(jobj, "Action", action);
 
-	file = fopen("profiles", "r+");
-	if (!file) {
-		action_data_obj = json_object_new_string("No profile configuration found");
+	fp = fopen("profiles", "r+");
+	if (fp) {
+		action_data = json_object_from_file("profiles");
 	} else {
-		action_data_obj = json_object_from_file("profiles");
-		fclose(file);
+		action_data = json_object_new_string("No profile found");
 	}
 
-	json_object_object_add(jobj, "actiondata", action_data_obj);
+	fclose(fp);
+	json_object_object_add(jobj, "ActionData", action_data);
+
 	return jobj;
 }
 
 json_object *filesys_save_profiles(json_object *jobj) {
-	json_object *action_data_obj;
-	FILE *file;
+	json_object *action_data;
 
-	action_data_obj = json_object_object_get(jobj, "actiondata");
-
-	file = fopen("profiles", "w+");
-	fprintf(file, json_object_to_json_string(action_data_obj));
-	fclose(file);
+	action_data = json_object_object_get(jobj, "ActionData");
+	json_object_to_file("profiles", action_data);
 
 	//TODO: Activate the profile
 

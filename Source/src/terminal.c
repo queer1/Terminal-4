@@ -50,21 +50,24 @@ int start_stream(Socket *sock) {
 const char *
 parse_input(Socket *sock, char *input) {
 	json_object *jobj;
-	json_object *action_obj;
-	char *action;
+	json_object *action;
 
 	jobj = json_tokener_parse(input);
-	action_obj = json_object_object_get(jobj, "action");
-	if (action_obj) {
-		strcpy(action, json_object_get_string(action_obj));
-		printf("INFO: Looking for action: %s\n", action);
-		if (strcmp(action, "discovery") == 0) {
+	action = json_object_object_get(jobj, "Action");
+
+	if (action) {
+		char *str;
+		strcpy(str, json_object_get_string(action));
+
+		printf("INFO: Looking for action: %s\n", str);
+
+		if (strcmp(str, "Discovery") == 0) {
 			return json_object_to_json_string(jobj);
-		} else if (strcmp(action, "getfilelist") == 0) {
+		} else if (strcmp(str, "GetFileList") == 0) {
 			return json_object_to_json_string(filesys_get_filelist(jobj));
-		} else if (strcmp(action, "getprofiles") == 0) {
+		} else if (strcmp(str, "GetProfiles") == 0) {
 			return json_object_to_json_string(filesys_get_profiles());
-		} else if (strcmp(action, "sendprofiles") == 0) {
+		} else if (strcmp(str, "SendProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
 		}
 	}
