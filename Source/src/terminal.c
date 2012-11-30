@@ -43,6 +43,10 @@ int start_stream(Socket *sock) {
 	return media_stream_init(comm_get_cli_address(sock), STREAM_PORT);
 }
 
+void close_relay() {
+	printf("Relay closed");
+}
+
 /**
  * Parses the specified string and overwrites it based on the analysis.
  * @param input The string to be parsed.
@@ -65,10 +69,18 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(jobj);
 		} else if (strcmp(str, "GetFileList") == 0) {
 			return json_object_to_json_string(filesys_get_filelist(jobj));
+		} else if (strcmp(str, "GetFile") == 0) {
+			return filesys_get_file(jobj);
+		} else if (strcmp(str, "DeleteFile") == 0) {
+			return json_object_to_json_string(filesys_delete_file(jobj));
 		} else if (strcmp(str, "GetProfiles") == 0) {
 			return json_object_to_json_string(filesys_get_profiles());
 		} else if (strcmp(str, "SendProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
+		} else if (strcmp(str, "CloseRelay") == 0) {
+			close_relay();
+			//TODO: Does this need a response?
+			return "";
 		}
 	}
 

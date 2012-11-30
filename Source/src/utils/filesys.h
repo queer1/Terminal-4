@@ -12,7 +12,7 @@
 
 json_object *filesys_get_filelist(json_object *jobj);
 json_object *filesys_delete_file(json_object *jobj);
-json_object *filesys_get_file(json_object *jobj);
+char *filesys_get_file(json_object *jobj);
 json_object *filesys_get_profiles();
 json_object *filesys_save_profiles(json_object *jobj);
 

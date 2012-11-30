@@ -91,14 +91,28 @@ json_object *filesys_delete_file(json_object *jobj) {
 	return action_data;
 }
 
-json_object *filesys_get_file(json_object *jobj) {
-	json_object *action_data;
-	char *file;
+char *filesys_get_file(json_object *jobj) {
+	FILE *file;
+	long len;
+	char *bytes;
 
-	strcpy(file,
-			json_object_get_string(json_object_object_get(jobj, "ActionData")));
-	json_object_object_add(jobj, "ActionData", action_data);
-	return jobj;
+	file = fopen(
+			json_object_get_string(json_object_object_get(jobj, "actiondata")),
+			"r");
+	if (!file) {
+		return "Could not open file/file not found";
+	}
+
+	fseek(file, 0, SEEK_END);
+
+	len = ftell(file);
+	bytes = malloc(len);
+
+	fseek(file, 0, SEEK_SET);
+	fread(bytes, 1, len, file);
+	fclose(file);
+
+	return bytes;
 }
 
 json_object *filesys_get_profiles() {
