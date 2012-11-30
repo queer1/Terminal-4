@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 void format_time(char *buf, struct tm *time) {
 	strftime(buf, 25, "%m/%d/%Y %H:%M:%S %p", time);
