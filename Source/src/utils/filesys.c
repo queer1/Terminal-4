@@ -141,11 +141,11 @@ json_object *filesys_get_profiles() {
 	fp = fopen("profiles", "r+");
 	if (fp) {
 		action_data = json_object_from_file("profiles");
+		fclose(fp);
 	} else {
 		action_data = json_object_new_string("No profile found");
 	}
 
-	fclose(fp);
 	json_object_object_add(jobj, "ActionData", action_data);
 
 	return jobj;
