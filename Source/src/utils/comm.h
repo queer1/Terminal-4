@@ -19,7 +19,8 @@ Socket *comm_create_udp_server(int port);
 Socket *comm_create_tcp_server(int port, int maxconn);
 Socket *comm_accept_connection(Socket *sock, unsigned timeout, int bufsize);
 Socket *comm_create_tcp_client(void);
-char *comm_get_cli_address(Socket *sock);
+char *comm_get_cli_host_info(Socket *sock);
+char *comm_get_cli_host_addr(Socket *sock);
 unsigned int comm_get_address(void);
 
 void comm_sendto(Socket *sock, const char *hostname, int port);

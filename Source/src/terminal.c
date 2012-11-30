@@ -41,7 +41,7 @@ void error(char *msg) {
 
 char *control_stream(Socket *sock, int start) {
 	if (start) {
-		media_stream_init(comm_get_cli_address(sock), STREAM_PORT);
+		media_stream_init(comm_get_cli_host_addr(sock), STREAM_PORT);
 	}
 	return ""; //TODO: Return success/failure
 }
@@ -144,7 +144,7 @@ void *start_tcp_server(void *arg) {
 				continue;
 
 			printf("INFO: Client connected - %s\n",
-					comm_get_cli_address(client));
+					comm_get_cli_host_info(client));
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));

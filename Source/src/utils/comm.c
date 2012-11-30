@@ -98,11 +98,15 @@ create_tcp_socket(int bufsize) {
 	return sock;
 }
 
-char *comm_get_cli_address(Socket *sock) {
+char *comm_get_cli_host_info(Socket *sock) {
 	printf("comm_get_cli_address\n");
 	char port[1024];
 	sprintf(port, ":%d", sock->cliaddr.sin_port);
 	return strcat(inet_ntoa(sock->cliaddr.sin_addr), port);
+}
+
+char *comm_get_cli_host_addr(Socket *sock) {
+	return inet_ntoa(sock->cliaddr.sin_addr);
 }
 
 unsigned int comm_get_address(void) {
@@ -254,7 +258,7 @@ void comm_sendto(Socket *sock, const char *hostname, int port) {
 
 int comm_send(Socket *sock, void *buf, size_t len) {
 	int flags = 0;
-	printf("DEBUG: comm_send - client=%s\n", comm_get_cli_address(sock));
+	printf("DEBUG: comm_send - client=%s\n", comm_get_cli_host_info(sock));
 	return sendto(sock->sock, buf, len, flags,
 			(struct sockaddr *) &sock->cliaddr, sizeof(SOCKADDR_IN));
 }
@@ -271,7 +275,7 @@ int comm_receive(Socket *sock, void *buf, size_t len) {
 			return SOCKET_ERROR;
 
 		printf("DEBUG: comm_receive - rc=%d\n", rc);
-		printf("DEBUG: comm_receive - from=%s\n", comm_get_cli_address(sock));
+		printf("DEBUG: comm_receive - from=%s\n", comm_get_cli_host_info(sock));
 		return rc;
 	}
 
