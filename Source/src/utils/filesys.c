@@ -45,6 +45,9 @@ json_object *filesys_get_filelist(json_object *jobj) {
 			if (strcmp(entry->d_name, ".") == 0)
 				continue;
 
+			if (strcmp(entry->d_name, "..") == 0)
+				continue;
+
 			stat(entry->d_name, &s);
 
 			memset(&date, 0, sizeof(date));
