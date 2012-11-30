@@ -39,8 +39,11 @@ void error(char *msg) {
 	exit(1);
 }
 
-int start_stream(Socket *sock) {
-	return media_stream_init(comm_get_cli_address(sock), STREAM_PORT);
+char *control_stream(Socket *sock, int start) {
+	if (start) {
+		media_stream_init(comm_get_cli_address(sock), STREAM_PORT);
+	}
+	return ""; //TODO: Return success/failure
 }
 
 void close_relay() {
@@ -75,6 +78,10 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(filesys_get_profiles());
 		} else if (strcmp(str, "SendProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
+		} else if (strcmp(str, "StartStream") == 0) {
+			return control_stream(sock, 1);
+		} else if (strcmp(str, "StopStream") == 0) {
+			return control_stream(sock, 0);
 		} else if (strcmp(str, "CloseRelay") == 0) {
 			close_relay();
 			//TODO: Does this need a response?
