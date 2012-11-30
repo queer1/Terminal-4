@@ -143,7 +143,7 @@ void *start_tcp_server(void *arg) {
 			printf("INFO: Client connected - %s\n",
 					comm_get_cli_host_info(client));
 
-			control_stream(sock, 1);
+			control_stream(client, 1);
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));
@@ -161,7 +161,7 @@ void *start_tcp_server(void *arg) {
 				}
 			}
 
-			control_stream(sock, 0);
+			control_stream(client, 0);
 			printf("INFO: Client disconnected\n");
 		}
 	}
