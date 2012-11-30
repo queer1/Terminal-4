@@ -39,11 +39,12 @@ void error(char *msg) {
 	exit(1);
 }
 
-char *control_stream(Socket *sock, int start) {
+int control_stream(Socket *sock, int start) {
 	if (start) {
-		media_stream_init(comm_get_cli_host_addr(sock), STREAM_PORT);
+		return media_stream_init(comm_get_cli_host_addr(sock), STREAM_PORT);
+	}else {
+		return media_stream_end();
 	}
-	return ""; //TODO: Return success/failure
 }
 
 void close_relay() {
@@ -78,11 +79,7 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(filesys_get_profiles());
 		} else if (strcmp(str, "SendProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
-		} else if (strcmp(str, "StartStream") == 0) {
-			return control_stream(sock, 1);
-		} else if (strcmp(str, "StopStream") == 0) {
-			return control_stream(sock, 0);
-		} else if (strcmp(str, "CloseRelay") == 0) {
+		}  else if (strcmp(str, "CloseRelay") == 0) {
 			close_relay();
 			//TODO: Does this need a response?
 			return "";
@@ -145,6 +142,8 @@ void *start_tcp_server(void *arg) {
 
 			printf("INFO: Client connected - %s\n",
 					comm_get_cli_host_info(client));
+
+			control_stream(sock, 1);
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));
@@ -162,6 +161,7 @@ void *start_tcp_server(void *arg) {
 				}
 			}
 
+			control_stream(sock, 0);
 			printf("INFO: Client disconnected\n");
 		}
 	}

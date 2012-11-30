@@ -9,5 +9,6 @@
 #define MEDIA_H_
 
 int media_stream_init(char *host, int port);
+int media_stream_end();
 
 #endif /* MEDIA_H_ */
