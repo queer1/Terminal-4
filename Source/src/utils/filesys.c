@@ -84,10 +84,8 @@ json_object *filesys_get_filelist(json_object *jobj) {
 
 json_object *filesys_delete_file(json_object *jobj) {
 	json_object *action_data;
-	char *file;
+	const char *file = json_object_get_string(json_object_object_get(jobj, "ActionData"));
 
-	strcpy(file,
-			json_object_get_string(json_object_object_get(jobj, "ActionData")));
 	action_data = json_object_new_boolean(!remove(file));
 	return action_data;
 }

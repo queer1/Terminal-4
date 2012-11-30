@@ -60,9 +60,7 @@ parse_input(Socket *sock, char *input) {
 	action = json_object_object_get(jobj, "Action");
 
 	if (action) {
-		char *str;
-		strcpy(str, json_object_get_string(action));
-
+		const char *str = json_object_get_string(action);
 		printf("INFO: Looking for action: %s\n", str);
 
 		if (strcmp(str, "Discovery") == 0) {
@@ -71,7 +69,7 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(filesys_get_filelist(jobj));
 		} else if (strcmp(str, "GetFile") == 0) {
 			return json_object_to_json_string(filesys_get_file(jobj));
-		}  else if (strcmp(str, "DeleteFile") == 0) {
+		} else if (strcmp(str, "DeleteFile") == 0) {
 			return json_object_to_json_string(filesys_delete_file(jobj));
 		} else if (strcmp(str, "GetProfiles") == 0) {
 			return json_object_to_json_string(filesys_get_profiles());
