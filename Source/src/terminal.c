@@ -70,8 +70,8 @@ parse_input(Socket *sock, char *input) {
 		} else if (strcmp(str, "GetFileList") == 0) {
 			return json_object_to_json_string(filesys_get_filelist(jobj));
 		} else if (strcmp(str, "GetFile") == 0) {
-			return filesys_get_file(jobj);
-		} else if (strcmp(str, "DeleteFile") == 0) {
+			return json_object_to_json_string(filesys_get_file(jobj));
+		}  else if (strcmp(str, "DeleteFile") == 0) {
 			return json_object_to_json_string(filesys_delete_file(jobj));
 		} else if (strcmp(str, "GetProfiles") == 0) {
 			return json_object_to_json_string(filesys_get_profiles());

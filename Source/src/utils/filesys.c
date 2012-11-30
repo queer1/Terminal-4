@@ -91,28 +91,42 @@ json_object *filesys_delete_file(json_object *jobj) {
 	return action_data;
 }
 
-char *filesys_get_file(json_object *jobj) {
-	FILE *file;
+json_object *filesys_get_file(json_object *jobj) {
+	FILE *fp;
 	long len;
 	char *bytes;
+	const char *file_name;
 
-	file = fopen(
-			json_object_get_string(json_object_object_get(jobj, "actiondata")),
-			"r");
-	if (!file) {
-		return "Could not open file/file not found";
+	json_object *action_data;
+	json_object *error;
+	json_object *file;
+	json_object *file_data;
+
+	action_data = json_object_new_object();
+	file_name = json_object_get_string(json_object_object_get(jobj, "ActionData"));
+
+	fp = fopen(file_name, "r");
+
+	if (!fp) {
+		error = json_object_new_string("Could not open file/file not found");
+		json_object_object_add(action_data, "Error", error);
+	} else {
+		fseek(fp, 0, SEEK_END);
+		len = ftell(fp);
+		bytes = malloc(len);
+
+		fseek(fp, 0, SEEK_SET);
+		fread(bytes, 1, len, fp);
+		fclose(fp);
+
+		file = json_object_new_string(file_name);
+		file_data = json_object_new_string(bytes);
+		json_object_object_add(action_data, "File", file);
+		json_object_object_add(action_data, "FileData", file_data);
 	}
 
-	fseek(file, 0, SEEK_END);
-
-	len = ftell(file);
-	bytes = malloc(len);
-
-	fseek(file, 0, SEEK_SET);
-	fread(bytes, 1, len, file);
-	fclose(file);
-
-	return bytes;
+	json_object_object_add(jobj, "ActionData", action_data);
+	return jobj;
 }
 
 json_object *filesys_get_profiles() {
