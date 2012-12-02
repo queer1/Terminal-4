@@ -2,22 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-int media_stream_init(char *host, int port) {
-	printf("DEBUG: Initializing stream\n");
-
-	char script[1024];
-	char portstr[80];
-	snprintf(portstr, 6, "%d", port);
-
-	snprintf(script, sizeof(script), "/opt/stream.sh %s %d", host, port);
-	printf("%s\n", script);
-	return system(script);
-}
-
-/*
-
 #include <gst/gst.h>
 #include <glib.h>
 
@@ -40,7 +24,7 @@ gboolean media_link_elements_with_filter(GstElement *v4l2src,
 	return link_ok;
 }
 
-int media_stream_init(int argc, char *argv[], char *host, int port) {
+void media_stream_start(int argc, char *argv[], char *host, int port) {
 	GMainLoop *loop;
 	GstElement *pipeline, *source, *dmaiaccel, *queue, *encoder, *sink;
 	GstCaps *caps;
