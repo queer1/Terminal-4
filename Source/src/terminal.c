@@ -9,7 +9,7 @@
  */
 
 #include "utils/comm.h"
-#include "utils/media.h"
+#include "utils/streaming.h"
 #include "utils/filesys.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,18 +39,20 @@ void error(char *msg) {
 	exit(1);
 }
 
-void start_stream(Socket *sock) {
+void *start_stream(void *arg) {
 	int error;
+	Socket *sock = (Socket *) arg;
 
-	error = media_stream_start(0, NULL, comm_get_cli_host_addr(sock),
-			STREAM_PORT);
+	error = streaming_start(0, NULL, comm_get_cli_host_addr(sock), STREAM_PORT);
 	if (error) {
-		printf("ERROR: Failed to start the streaming service");
+		printf("ERROR: Failed to start the streaming service\n");
 	}
+
+	return arg;
 }
 
 void stop_stream() {
-	media_stream_stop();
+	streaming_stop();
 }
 
 void close_relay() {
@@ -125,7 +127,6 @@ void *start_udp_server(void *arg) {
 		comm_destroySocket(sock);
 	}
 
-	pthread_exit(0);
 	return arg;
 }
 
@@ -134,6 +135,7 @@ void *start_tcp_server(void *arg) {
 	char buf[BUF_SIZE];
 	Socket *sock;
 	Socket *client;
+	pthread_t stream_thread;
 
 	printf("INFO: Creating TCP socket\n");
 	sock = comm_create_tcp_server(TCP_PORT, 1);
@@ -148,6 +150,8 @@ void *start_tcp_server(void *arg) {
 
 			printf("INFO: Client connected - %s\n",
 					comm_get_cli_host_info(client));
+
+			pthread_create(&stream_thread, NULL, start_stream, (void *) client);
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));
@@ -165,10 +169,13 @@ void *start_tcp_server(void *arg) {
 				}
 			}
 
+			stop_stream();
+			pthread_join(stream_thread, NULL );
+			free(stream_thread);
 			printf("INFO: Client disconnected\n");
 		}
 	}
-	pthread_exit(0);
+
 	return arg;
 }
 
