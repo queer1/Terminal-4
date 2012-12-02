@@ -2,76 +2,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
- #include <gst/gst.h>
- #include <glib.h>
+#include <gst/gst.h>
+#include <glib.h>
 
- gboolean media_link_elements_with_filter(GstElement *v4l2src,
- GstElement *dmaiaccel) {
- gboolean link_ok;
- GstCaps *caps;
+static GMainLoop *loop;
 
- caps = gst_caps_new_simple("video/x-raw-yuv", "format", G_TYPE_STRING,
- "NV12", "width", "width", G_TYPE_INT, 384, "height", G_TYPE_INT,
- 288, NULL );
+gboolean media_link_elements_with_filter(GstElement *v4l2src,
+		GstElement *dmaiaccel) {
+	gboolean link_ok;
+	GstCaps *caps;
 
- link_ok = gst_element_link_filtered(v4l2src, dmaiaccel, caps);
- gst_caps_unref(caps);
+	caps = gst_caps_new_simple("video/x-raw-yuv", "format", G_TYPE_STRING,
+			"NV12", "width", "width", G_TYPE_INT, 640, "height", G_TYPE_INT,
+			480, NULL );
 
- if (!link_ok) {
- g_warning("Failed to link v4l2src and dmaiaccel.");
- }
+	link_ok = gst_element_link_filtered(v4l2src, dmaiaccel, caps);
+	gst_caps_unref(caps);
 
- return link_ok;
- }
+	if (!link_ok) {
+		g_warning("Failed to link v4l2src and dmaiaccel.");
+	}
 
-void media_stream_start(int argc, char *argv[], char *host, int port) {
- GMainLoop *loop;
- GstElement *pipeline, *source, *dmaiaccel, *queue, *encoder, *sink;
- GstCaps *caps;
- int error = 0;
+	return link_ok;
+}
 
- gst_init(&argc, &argv);
- loop = g_main_loop_new(NULL, FALSE);
+int media_stream_start(int argc, char *argv[], char *host, int port) {
+	GstElement *pipeline, *source, *dmaiaccel, *queue, *encoder, *sink;
+	int error = 0;
 
- pipeline = gst_pipeline_new("video-streamer");
- source = gst_element_factory_make("v4l2src", "source");
- dmaiaccel = gst_element_factory_make("dmaiaccel", NULL );
- queue = gst_element_factory_make("queue", NULL );
- encoder = gst_element_factory_make("dmaienc_mpeg4", "encoder");
- sink = gst_element_factory_make("udpsink", "sink");
+	if (loop) {
+		media_stream_stop();
+	}
 
- if (!source) {
- g_printerr("Failed to create the v4l2src element.");
- error = -1;
- }
+	gst_init(&argc, &argv);
+	loop = g_main_loop_new(NULL, FALSE);
 
- if (!dmaiaccel || !encoder) {
- g_printerr("Failed to create the DMAI element(s).");
- error = -1;
- }
+	pipeline = gst_pipeline_new("video-streamer");
+	source = gst_element_factory_make("v4l2src", "source");
+	dmaiaccel = gst_element_factory_make("dmaiaccel", NULL );
+	queue = gst_element_factory_make("queue", NULL );
+	encoder = gst_element_factory_make("dmaienc_mpeg4", "encoder");
+	sink = gst_element_factory_make("udpsink", "sink");
 
- if (!queue) {
- g_printerr("Failed to create the queue element");
- error = -1;
- }
+	if (!source) {
+		g_printerr("Failed to create the v4l2src element.");
+		error = -1;
+	}
 
- if (!sink) {
- g_printerr("Failed to create the udpsink element");
- error = -1;
- }
+	if (!dmaiaccel || !encoder) {
+		g_printerr("Failed to create the DMAI element(s).");
+		error = -1;
+	}
 
- if (error < 0) {
- return error;
- }
+	if (!queue) {
+		g_printerr("Failed to create the queue element");
+		error = -1;
+	}
 
- g_object_set(source, "always_copy", FALSE, NULL );
- g_object_set(source, "host", host, "port", port, NULL );
+	if (!sink) {
+		g_printerr("Failed to create the udpsink element");
+		error = -1;
+	}
 
- gst_bin_add_many(GST_BIN(pipeline), source, dmaiaccel, queue, encoder, sink,
- NULL );
- gst_element_link_many(source, dmaiaccel, queue, encoder, sink, NULL );
- media_link_elements_with_filter(source, dmaiaccel);
- gst_element_set_state(pipeline, GST_STATE_PLAYING);
- }
+	if (error == 0) {
+		g_object_set(source, "always_copy", FALSE, NULL );
+		g_object_set(source, "host", host, "port", port, NULL );
 
- */
+		gst_bin_add_many(GST_BIN(pipeline), source, dmaiaccel, queue, encoder,
+				sink, NULL );
+		gst_element_link_many(source, dmaiaccel, queue, encoder, sink, NULL );
+		media_link_elements_with_filter(source, dmaiaccel);
+
+		gst_element_set_state(pipeline, GST_STATE_PLAYING);
+	}
+
+	return error;
+}
+
+void media_stream_stop() {
+}

@@ -40,7 +40,13 @@ void error(char *msg) {
 }
 
 void start_stream(Socket *sock) {
-	media_stream_start(0, NULL, comm_get_cli_host_addr(sock), STREAM_PORT);
+	int error;
+
+	error = media_stream_start(0, NULL, comm_get_cli_host_addr(sock),
+			STREAM_PORT);
+	if (error) {
+		printf("ERROR: Failed to start the streaming service");
+	}
 }
 
 void stop_stream() {
