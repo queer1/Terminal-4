@@ -99,7 +99,6 @@ create_tcp_socket(int bufsize) {
 }
 
 char *comm_get_cli_host_info(Socket *sock) {
-	printf("comm_get_cli_address\n");
 	char port[1024];
 	sprintf(port, ":%d", sock->cliaddr.sin_port);
 	return strcat(inet_ntoa(sock->cliaddr.sin_addr), port);

@@ -89,10 +89,15 @@ int streaming_start(int argc, char *argv[], char *host, int port) {
 
 	printf("INFO: Streaming started\n");
 	g_main_loop_run(loop);
+	g_main_loop_unref(loop);
 
 	printf("INFO: Cleaning up stream resources\n");
 	gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_NULL);
 	gst_object_unref(GST_OBJECT(pipeline) );
+
+	loop = NULL;
+	pipeline = NULL;
+
 
 	return 0;
 }

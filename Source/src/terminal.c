@@ -171,7 +171,6 @@ void *start_tcp_server(void *arg) {
 
 			stop_stream();
 			pthread_join(stream_thread, NULL );
-			free(stream_thread);
 			printf("INFO: Client disconnected\n");
 		}
 	}
