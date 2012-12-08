@@ -34,7 +34,7 @@
 								<option id="gnu.c.compiler.option.include.paths.296114648" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${GST_INCLUDES}/gstreamer-0.10&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${GST_INCLUDES}/glib-2.0&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${GST_INCLUDES}/libxml2&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\cygwin\usr\include\libxml2&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.221302158" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
 							</tool>
