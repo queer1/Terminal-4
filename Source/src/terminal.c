@@ -76,7 +76,7 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(filesys_delete_file(jobj));
 		} else if (strcmp(str, "GetProfiles") == 0) {
 			return json_object_to_json_string(filesys_get_profiles());
-		} else if (strcmp(str, "SendProfiles") == 0) {
+		} else if (strcmp(str, "SaveProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
 		} else if (strcmp(str, "StartStream") == 0) {
 			return control_stream(sock, 1);
