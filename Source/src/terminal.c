@@ -9,7 +9,7 @@
  */
 
 #include "utils/comm.h"
-#include "utils/media.h"
+#include "utils/streaming.h"
 #include "utils/filesys.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,11 +39,20 @@ void error(char *msg) {
 	exit(1);
 }
 
-char *control_stream(Socket *sock, int start) {
-	if (start) {
-		media_stream_init(comm_get_cli_host_addr(sock), STREAM_PORT);
+void *start_stream(void *arg) {
+	int error;
+	Socket *sock = (Socket *) arg;
+
+	error = streaming_start(0, NULL, comm_get_cli_host_addr(sock), STREAM_PORT);
+	if (error) {
+		printf("ERROR: Failed to start the streaming service\n");
 	}
-	return ""; //TODO: Return success/failure
+
+	return arg;
+}
+
+void stop_stream() {
+	streaming_stop();
 }
 
 void close_relay() {
@@ -78,10 +87,6 @@ parse_input(Socket *sock, char *input) {
 			return json_object_to_json_string(filesys_get_profiles());
 		} else if (strcmp(str, "SaveProfiles") == 0) {
 			return json_object_to_json_string(filesys_save_profiles(jobj));
-		} else if (strcmp(str, "StartStream") == 0) {
-			return control_stream(sock, 1);
-		} else if (strcmp(str, "StopStream") == 0) {
-			return control_stream(sock, 0);
 		} else if (strcmp(str, "CloseRelay") == 0) {
 			close_relay();
 			//TODO: Does this need a response?
@@ -122,7 +127,6 @@ void *start_udp_server(void *arg) {
 		comm_destroySocket(sock);
 	}
 
-	pthread_exit(0);
 	return arg;
 }
 
@@ -131,6 +135,7 @@ void *start_tcp_server(void *arg) {
 	char buf[BUF_SIZE];
 	Socket *sock;
 	Socket *client;
+	pthread_t stream_thread;
 
 	printf("INFO: Creating TCP socket\n");
 	sock = comm_create_tcp_server(TCP_PORT, 1);
@@ -145,6 +150,8 @@ void *start_tcp_server(void *arg) {
 
 			printf("INFO: Client connected - %s\n",
 					comm_get_cli_host_info(client));
+
+			pthread_create(&stream_thread, NULL, start_stream, (void *) client);
 			while (1) {
 				memset(&buf, 0, sizeof(buf));
 				bytes = comm_receive(client, buf, sizeof(buf));
@@ -162,10 +169,12 @@ void *start_tcp_server(void *arg) {
 				}
 			}
 
+			stop_stream();
+			pthread_join(stream_thread, NULL );
 			printf("INFO: Client disconnected\n");
 		}
 	}
-	pthread_exit(0);
+
 	return arg;
 }
 
