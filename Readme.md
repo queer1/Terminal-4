@@ -1,0 +1,1 @@
+This is the barebones for a surveillance terminal system. This was completed academically for the Senior Capstone project.
